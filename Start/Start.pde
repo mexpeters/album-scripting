@@ -71,7 +71,7 @@ void setup() {
   frameRate(30);
   smooth();
   
-  Fresku = minim.loadFile("Fresku-song.mp3", 2048);
+    Fresku = minim.loadFile("Fresku-song.mp3", 2048);
   fft = new FFT( Fresku.bufferSize(), Fresku.sampleRate() );
   
   MacMiller = minim.loadFile("MacMiller-song.mp3", 2048);
@@ -84,15 +84,22 @@ void setup() {
   bl = new BeatListener(beat, AmberRun);  
   
   Fisher = minim.loadFile("Fisher-song.mp3", 2048);
-  fft = new FFT( Fisher.bufferSize(), Fisher.sampleRate() );
+  beat = new BeatDetect(Fisher.bufferSize(), Fisher.sampleRate());//The internal buffer size of this sound object//
   bl = new BeatListener(beat, Fisher);
-  
+   
   NWA = minim.loadFile("NWA-song.mp3", 2048);
+  beat = new BeatDetect(NWA.bufferSize(), NWA.sampleRate());//The internal buffer size of this sound object//
+  bl = new BeatListener(beat, NWA);
+  
   BMTH = minim.loadFile("BMTH-song.mp3", 2048);
+  
   LinkinPark = minim.loadFile("LinkinPark-song.mp3", 2048);
+  beat = new BeatDetect(LinkinPark.bufferSize(), LinkinPark.sampleRate());//The internal buffer size of this sound object//
+  bl = new BeatListener(beat, LinkinPark);
+  
   U2 = minim.loadFile("U2-song.mp3", 2048);
   
-  beat.setSensitivity(100); 
+  beat.setSensitivity(0); 
   
 }
 
@@ -134,7 +141,6 @@ void draw() {
   bottomBar();
           
     if(x >= 70 && x <= 170) {
-      fft.forward( Fresku.right );
       
       if(y >= 70 && y <= 170) {
           instructions = "Press ENTER to visualise In Het Diepe";
@@ -151,13 +157,13 @@ void draw() {
         
           instructions = "Press ENTER to visualise Heaven";
           if (keyCode == ENTER) {
+            background(0);
             instructions = "Now playing: Amber Run - Heaven";
             AmberRun.play();
             bottomBar();
-            background(255);
-                  
-            if (kick == true){
-              randomLines();
+            
+            for (int i = 0; i < AmberRun.bufferSize() - 1; i++) {
+                randomLines();
             }
           } 
       }
@@ -175,20 +181,33 @@ void draw() {
       }
       
       if(y >= 310 && y <= 410) {
-          instructions = "Press ENTER to visualise Losing It";          
-          if (keyCode == ENTER) {
-            Fisher.play();
-            background(255); // reset background;
-                  
-            if (kick == true){
-              randomCircles();
-            }
-          } 
-      }
+           instructions = "Press ENTER to visualise Losing It";          
+             if (keyCode == ENTER) {
+              background(0);
+              Fisher.play();
+              
+              if (hat == true){
+                randomCircles();
+              }
+             
+              instructions = "Now playing: Linkin Park - One More Light";
+              bottomBar();
+            } 
+      }    
       
       if(y >= 550 && y <= 650) {
           instructions = "Press ENTER to visualise One More Light";
-          if (keyCode == ENTER) { LinkinPark.play(); } 
+          if (keyCode == ENTER) {
+            background(0);
+            LinkinPark.play();
+            
+            if (kick == true){
+              randomRectangles();
+            }
+           
+            instructions = "Now playing: Linkin Park - One More Light";
+            bottomBar();
+          } 
       }
     } 
     
@@ -200,7 +219,17 @@ void draw() {
       
       if(y >= 310 && y <= 410) {
           instructions = "Press ENTER to visualise Straight Outta Compton";
-          if (keyCode == ENTER) { NWA.play(); } 
+          if (keyCode == ENTER) {
+            //background(0);
+            //NWA.play();
+            
+            //if (kick == true){
+            //  randomRectangles();
+            //}
+           
+            //instructions = "Now playing: N.W.A - Straight Outta Compton";
+            //bottomBar();
+          } 
       }
       
       if(y >= 550 && y <= 650) {
@@ -230,17 +259,39 @@ void character() {
 void randomCircles() {
   fill(random(255), random(255), random(255));
   ellipse(random(800), random(700), random(800), random(700));
+  pictureFrame();
 } 
 
 void randomLines() {
   stroke(random(255), random(255), random(255));
-  line(random(800), random(700), random(800), random(700));
+  line(15, 15, random(800), random(800));
+  pictureFrame();
 } 
+
+void randomRectangles() {
+  fill(random(255), random(255), random(255));
+  rect(random(800), random(700), random(800), random(700));
+  pictureFrame();
+}
+
+void randomTriangle() {
+  fill(random(255), random(255), random(255));
+  triangle(random(700), random(800), random(700), random(700), random(800), random(700));
+  pictureFrame();
+}
+
+void pictureFrame() {
+  fill(0);
+  stroke(0);
+  rect(0,0,45, 800); // left
+  rect(0,0,800, 45); // top
+  rect(755,0,800, 800); // right
+  rect(0,755,800, 45); // bottom
+}
 
 
 class Album { 
   int albumX, albumY;
-  
   
   Album(int one, int two) {  
     albumX = one; 
@@ -283,9 +334,3 @@ class BeatListener implements AudioListener
     beat.detect(source.mix);
   }
 }
-
-
-
-//for (int i = 0; i < Fisher.bufferSize() - 1; i++) {
-//    randomCircles();
-//}
