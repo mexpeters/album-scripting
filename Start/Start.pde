@@ -14,7 +14,15 @@ AudioPlayer NWA;
 AudioPlayer BMTH;
 AudioPlayer LinkinPark;
 AudioPlayer U2;
-BeatDetect beat;//linking beatdetect(BeatDetect class allows you to analyze an audio stream for beats) to the word beat
+BeatDetect beatFresku;
+BeatDetect beatMacMiller;
+BeatDetect beatMaan;
+BeatDetect beatAmberRun;
+BeatDetect beatFisher;
+BeatDetect beatNWA;
+BeatDetect beatBMTH;
+BeatDetect beatLinkinPark;
+BeatDetect beatU2;
 BeatListener bl;
 
 float x = 60;
@@ -71,45 +79,48 @@ void setup() {
   frameRate(30);
   smooth();
   
-    Fresku = minim.loadFile("Fresku-song.mp3", 2048);
-  fft = new FFT( Fresku.bufferSize(), Fresku.sampleRate() );
+  Fresku = minim.loadFile("Fresku-song.mp3", 2048);
+  beatFresku = new BeatDetect(Fresku.bufferSize(), Fresku.sampleRate());//The internal buffer size of this sound object//
+  bl = new BeatListener(beatFresku, Fresku);  
   
   MacMiller = minim.loadFile("MacMiller-song.mp3", 2048);
-  fft = new FFT( MacMiller.bufferSize(), MacMiller.sampleRate() );
+  beatMacMiller = new BeatDetect(MacMiller.bufferSize(), MacMiller.sampleRate());//The internal buffer size of this sound object//
+  bl = new BeatListener(beatMacMiller, MacMiller);  
   
   Maan = minim.loadFile("Maan-song.mp3", 2048);
+  beatMaan = new BeatDetect(Maan.bufferSize(), Maan.sampleRate());//The internal buffer size of this sound object//
+  bl = new BeatListener(beatMaan, Maan);  
   
   AmberRun = minim.loadFile("AmberRun-song.mp3", 2048);
-  beat = new BeatDetect(AmberRun.bufferSize(), AmberRun.sampleRate());//The internal buffer size of this sound object//
-  bl = new BeatListener(beat, AmberRun);  
+  beatAmberRun = new BeatDetect(AmberRun.bufferSize(), AmberRun.sampleRate());//The internal buffer size of this sound object//
+  bl = new BeatListener(beatAmberRun, AmberRun);  
   
   Fisher = minim.loadFile("Fisher-song.mp3", 2048);
-  beat = new BeatDetect(Fisher.bufferSize(), Fisher.sampleRate());//The internal buffer size of this sound object//
-  bl = new BeatListener(beat, Fisher);
+  beatFisher = new BeatDetect(Fisher.bufferSize(), Fisher.sampleRate());//The internal buffer size of this sound object//
+  bl = new BeatListener(beatFisher, Fisher);
    
   NWA = minim.loadFile("NWA-song.mp3", 2048);
-  beat = new BeatDetect(NWA.bufferSize(), NWA.sampleRate());//The internal buffer size of this sound object//
-  bl = new BeatListener(beat, NWA);
+  beatNWA = new BeatDetect(NWA.bufferSize(), NWA.sampleRate());//The internal buffer size of this sound object//
+  bl = new BeatListener(beatNWA, NWA);
   
   BMTH = minim.loadFile("BMTH-song.mp3", 2048);
+  beatBMTH = new BeatDetect(BMTH.bufferSize(), BMTH.sampleRate());//The internal buffer size of this sound object//
+  bl = new BeatListener(beatBMTH, BMTH);
   
   LinkinPark = minim.loadFile("LinkinPark-song.mp3", 2048);
-  beat = new BeatDetect(LinkinPark.bufferSize(), LinkinPark.sampleRate());//The internal buffer size of this sound object//
-  bl = new BeatListener(beat, LinkinPark);
+  beatLinkinPark = new BeatDetect(LinkinPark.bufferSize(), LinkinPark.sampleRate());//The internal buffer size of this sound object//
+  bl = new BeatListener(beatLinkinPark, LinkinPark);
   
   U2 = minim.loadFile("U2-song.mp3", 2048);
-  
-  beat.setSensitivity(0); 
+  beatU2 = new BeatDetect(U2.bufferSize(), U2.sampleRate());//The internal buffer size of this sound object//
+  bl = new BeatListener(beatU2, U2);
+ 
   
 }
 
 void draw() {
   background(255);
   
-  boolean kick = beat.isKick();//In frequency energy mode this returns true if a beat corresponding to the frequency range of a kick drum has been detected.
-  boolean hat = beat.isHat();//In frequency energy mode this returns true if a beat corresponding to the frequency range of a hi hat has been detected.
-  boolean snare = beat.isSnare();//In frequency energy mode this returns true if a beat corresponding to the frequency range of a snare has been detected.
-
   album01.create();
   image(FreskuCover,20,20);
   
@@ -145,11 +156,16 @@ void draw() {
       if(y >= 70 && y <= 170) {
           instructions = "Press ENTER to visualise In Het Diepe";
           if (keyCode == ENTER) {
-            Fresku.play();
-            beat.detect( Fresku.right );  
-              if( beat.isOnset() ){
-                // function
-              }
+            Fresku.play();            
+            background(255);
+            
+            if (beatFresku.isKick() == true){
+              randomRectangles();
+            }
+            
+            pictureFrame();
+            instructions = "Now playing: Fresku - In Het Diepe";
+            bottomBar();
           } 
       } 
       
@@ -157,40 +173,67 @@ void draw() {
         
           instructions = "Press ENTER to visualise Heaven";
           if (keyCode == ENTER) {
-            background(0);
-            instructions = "Now playing: Amber Run - Heaven";
             AmberRun.play();
-            bottomBar();
+            background(255);
             
             for (int i = 0; i < AmberRun.bufferSize() - 1; i++) {
                 randomLines();
             }
+            
+            pictureFrame();
+            instructions = "Now playing: Amber Run - Heaven";
+            bottomBar();
           } 
       }
       
       if(y >= 550 && y <= 650) {
           instructions = "Press ENTER to visualise Happy Song";
-          if (keyCode == ENTER) { BMTH.play(); } 
+          if (keyCode == ENTER) {
+            BMTH.play();            
+            background(255);
+            
+            if (beatBMTH.isKick() == true){
+              randomCircles();
+            }
+           
+            pictureFrame();
+            instructions = "Now playing: Bring Me The Horizon - Happy Song";
+            bottomBar();
+          } 
       }
     } 
     
     if(x >= 350 && x <= 450) {
       if(y >= 70 && y <= 170) {
           instructions = "Press ENTER to visualise Woods";
-          if (keyCode == ENTER) { MacMiller.play(); } 
+          if (keyCode == ENTER) {
+              MacMiller.play();
+              background(255);
+              if (beatMacMiller.isKick() == true){
+                randomCircles();
+              }
+             
+              pictureFrame();
+              instructions = "Now playing: Mac Miller - Woods";
+              bottomBar();
+          } 
       }
       
       if(y >= 310 && y <= 410) {
            instructions = "Press ENTER to visualise Losing It";          
-             if (keyCode == ENTER) {
-              background(0);
+           if (keyCode == ENTER) {              
               Fisher.play();
+              background(255);
+              if (beatFisher.isKick() == true){
+                randomRectangles();
+              }
               
-              if (hat == true){
-                randomCircles();
+              if (beatFisher.isSnare() == true){
+                randomRectangles();
               }
              
-              instructions = "Now playing: Linkin Park - One More Light";
+              pictureFrame();
+              instructions = "Now playing: Fisher - Losing It";
               bottomBar();
             } 
       }    
@@ -198,13 +241,14 @@ void draw() {
       if(y >= 550 && y <= 650) {
           instructions = "Press ENTER to visualise One More Light";
           if (keyCode == ENTER) {
-            background(0);
             LinkinPark.play();
+            background(255);
             
-            if (kick == true){
-              randomRectangles();
+            if (beatLinkinPark.isKick() == true){
+              randomCircles();
             }
-           
+            
+            pictureFrame();
             instructions = "Now playing: Linkin Park - One More Light";
             bottomBar();
           } 
@@ -214,27 +258,54 @@ void draw() {
     if(x >= 630 && x <= 730) {
       if(y >= 70 && y <= 170) {
           instructions = "Press ENTER to visualise Onverstaanbaar";
-          if (keyCode == ENTER) { Maan.play(); } 
+          if (keyCode == ENTER) {
+            Maan.play();
+            background(255);
+            
+            if (beatMaan.isKick() == true){
+              randomRectangles();
+            }
+           
+            pictureFrame();
+            instructions = "Now playing: Maan - Onverstaanbaar";
+            bottomBar();
+          } 
       }
       
       if(y >= 310 && y <= 410) {
           instructions = "Press ENTER to visualise Straight Outta Compton";
           if (keyCode == ENTER) {
-            //background(0);
-            //NWA.play();
+            NWA.play();
+            background(255);
+              
+            if (beatNWA.isKick() == true){
+              randomRectangles();
+            }
             
-            //if (kick == true){
-            //  randomRectangles();
-            //}
-           
-            //instructions = "Now playing: N.W.A - Straight Outta Compton";
-            //bottomBar();
+            if (beatNWA.isHat() == true){
+              randomLines();
+            }
+            
+            pictureFrame();
+            instructions = "Now playing: NWA - Straight Outta Compton";
+            bottomBar();
           } 
       }
       
       if(y >= 550 && y <= 650) {
           instructions = "Press ENTER to visualise No Line On The Horizon";
-          if (keyCode == ENTER) { U2.play(); } 
+          if (keyCode == ENTER) {
+            U2.play();
+            background(255);
+            
+            if (beatU2.isKick() == true){
+              randomRectangles();
+            }
+           
+            pictureFrame();
+            instructions = "Now playing: U2 - No Line On The Horizon";
+            bottomBar();
+          } 
       }
     } 
 }
@@ -265,19 +336,16 @@ void randomCircles() {
 void randomLines() {
   stroke(random(255), random(255), random(255));
   line(15, 15, random(800), random(800));
-  pictureFrame();
 } 
 
 void randomRectangles() {
   fill(random(255), random(255), random(255));
   rect(random(800), random(700), random(800), random(700));
-  pictureFrame();
 }
 
 void randomTriangle() {
   fill(random(255), random(255), random(255));
   triangle(random(700), random(800), random(700), random(700), random(800), random(700));
-  pictureFrame();
 }
 
 void pictureFrame() {
