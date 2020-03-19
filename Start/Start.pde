@@ -32,13 +32,13 @@ float characterY;
 int characterSize = 75;
 boolean overBox = false;
 boolean locked = false;
-boolean musicPlaying = false;
 float xOffset = 0.0; 
 float yOffset = 0.0; 
+color white = #FFFFFF;
 
 int speed = 10;
 float easing = 0.05;
-String instructionsBase = "Move the cursor inside an album with the ARROW keys";
+String instructionsBase = "Move the cursor inside an album with the ARROW keys / drag & drop";
 String instructions = instructionsBase;
 
 Album album01 = new Album(20,20); 
@@ -234,7 +234,6 @@ void draw() {
            instructions = "Press ENTER to visualise Losing It";          
            if (keyCode == ENTER) {              
               Fisher.play();
-              musicPlaying = true;
               background(255);
               
               if (beatFisher.isKick() == true){
@@ -332,7 +331,7 @@ void bottomBar() {
 
 
 void character() {
-  fill(0, 255, 0);
+  fill(0, 255, 0, 150);
   rect(characterX, characterY, characterSize, characterSize);
 }
 
@@ -375,6 +374,8 @@ void pictureFrame() {
   rect(0,0,800, 45); // top
   rect(755,0,800, 800); // right
   rect(0,755,800, 45); // bottom
+  fill(white);
+  text("Press any key to return", 46, 783); 
 }
 
 
@@ -394,15 +395,20 @@ class Album {
 
 
 void keyPressed() {
-  if(!musicPlaying) {
-    println("MUSIC NOT PLAYING");
-    if (keyCode == UP) { characterY = characterY - speed; }
-    if (keyCode == DOWN) { characterY = characterY + speed; } 
-    if (keyCode == LEFT) { characterX = characterX - speed; }
-    if (keyCode == RIGHT) { characterX = characterX + speed; } 
-  } else {
-     println("MUSIC PLAYING");
-    }
+  if (keyCode == 37) { characterX = characterX - speed; } // LEFT
+  if (keyCode == 38) { characterY = characterY - speed; } // UP
+  if (keyCode == 39) { characterX = characterX + speed; } // RIGHT
+  if (keyCode == 40) { characterY = characterY + speed; } // DOWN
+  
+    Fresku.pause();
+    Maan.pause();
+    NWA.pause();
+    U2.pause();
+    LinkinPark.pause();
+    AmberRun.pause();
+    MacMiller.pause();
+    Fisher.pause();
+    BMTH.pause();
 }
 
 // https://www.processing.org/examples/mousefunctions.html
