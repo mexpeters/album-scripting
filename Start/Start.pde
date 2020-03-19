@@ -1,7 +1,9 @@
-import ddf.minim.signals.*;//variois parts of the minim libary
+import ddf.minim.signals.*; 
 import ddf.minim.*;
 import ddf.minim.analysis.*;
 import ddf.minim.effects.*;
+
+// http://code.compartmental.net/minim/index.html
 
 Minim minim;
 FFT fft;
@@ -25,9 +27,16 @@ BeatDetect beatLinkinPark;
 BeatDetect beatU2;
 BeatListener bl;
 
-float x = 60;
-float y = 260;
-float speed = 10;
+float characterX;
+float characterY;
+int characterSize = 75;
+boolean overBox = false;
+boolean locked = false;
+boolean musicPlaying = false;
+float xOffset = 0.0; 
+float yOffset = 0.0; 
+
+int speed = 10;
 float easing = 0.05;
 String instructionsBase = "Move the cursor inside an album with the ARROW keys";
 String instructions = instructionsBase;
@@ -121,6 +130,8 @@ void setup() {
 void draw() {
   background(255);
   
+  mouseTest();
+  
   album01.create();
   image(FreskuCover,20,20);
   
@@ -151,16 +162,16 @@ void draw() {
   character();
   bottomBar();
           
-    if(x >= 70 && x <= 170) {
-      
-      if(y >= 70 && y <= 170) {
+    if(characterX >= 20 && characterX <= 145) {
+      if(characterY >= 20 && characterY <= 145) {
           instructions = "Press ENTER to visualise In Het Diepe";
           if (keyCode == ENTER) {
-            Fresku.play();            
+            Fresku.play();         
             background(255);
             
             if (beatFresku.isKick() == true){
-              randomRectangles();
+              randomDots();
+              randomTriangles();
             }
             
             pictureFrame();
@@ -169,7 +180,7 @@ void draw() {
           } 
       } 
       
-      if(y >= 310 && y <= 410) {
+      if(characterY >= 260 && characterY <= 385) {
         
           instructions = "Press ENTER to visualise Heaven";
           if (keyCode == ENTER) {
@@ -186,7 +197,7 @@ void draw() {
           } 
       }
       
-      if(y >= 550 && y <= 650) {
+      if(characterY >= 500 && characterY <= 625) {
           instructions = "Press ENTER to visualise Happy Song";
           if (keyCode == ENTER) {
             BMTH.play();            
@@ -203,8 +214,8 @@ void draw() {
       }
     } 
     
-    if(x >= 350 && x <= 450) {
-      if(y >= 70 && y <= 170) {
+    if(characterX >= 300 && characterX <= 425) {
+      if(characterY >= 20 && characterY <= 145) {
           instructions = "Press ENTER to visualise Woods";
           if (keyCode == ENTER) {
               MacMiller.play();
@@ -219,18 +230,17 @@ void draw() {
           } 
       }
       
-      if(y >= 310 && y <= 410) {
+      if(characterY >= 260 && characterY <= 385) {
            instructions = "Press ENTER to visualise Losing It";          
            if (keyCode == ENTER) {              
               Fisher.play();
+              musicPlaying = true;
               background(255);
+              
               if (beatFisher.isKick() == true){
                 randomRectangles();
               }
-              
-              if (beatFisher.isSnare() == true){
-                randomRectangles();
-              }
+             
              
               pictureFrame();
               instructions = "Now playing: Fisher - Losing It";
@@ -238,7 +248,7 @@ void draw() {
             } 
       }    
       
-      if(y >= 550 && y <= 650) {
+      if(characterY >= 500 && characterY <= 625) {
           instructions = "Press ENTER to visualise One More Light";
           if (keyCode == ENTER) {
             LinkinPark.play();
@@ -255,8 +265,8 @@ void draw() {
       }
     } 
     
-    if(x >= 630 && x <= 730) {
-      if(y >= 70 && y <= 170) {
+    if(characterX >= 580 && characterX <= 705) {
+      if(characterY >= 20 && characterY <= 145) {
           instructions = "Press ENTER to visualise Onverstaanbaar";
           if (keyCode == ENTER) {
             Maan.play();
@@ -272,7 +282,7 @@ void draw() {
           } 
       }
       
-      if(y >= 310 && y <= 410) {
+      if(characterY >= 260 && characterY <= 385) {
           instructions = "Press ENTER to visualise Straight Outta Compton";
           if (keyCode == ENTER) {
             NWA.play();
@@ -292,7 +302,7 @@ void draw() {
           } 
       }
       
-      if(y >= 550 && y <= 650) {
+      if(characterY >= 500 && characterY <= 625) {
           instructions = "Press ENTER to visualise No Line On The Horizon";
           if (keyCode == ENTER) {
             U2.play();
@@ -323,7 +333,7 @@ void bottomBar() {
 
 void character() {
   fill(0, 255, 0);
-  ellipse(x, y, 100, 100);
+  rect(characterX, characterY, characterSize, characterSize);
 }
 
 
@@ -343,9 +353,19 @@ void randomRectangles() {
   rect(random(800), random(700), random(800), random(700));
 }
 
-void randomTriangle() {
+void randomTriangles() {
   fill(random(255), random(255), random(255));
   triangle(random(700), random(800), random(700), random(700), random(800), random(700));
+}
+
+void randomDots() {
+  stroke(random(255), random(255), random(255));
+  point(random(255),random(255));
+}
+
+void randomSquares() {
+  fill(random(255), random(255), random(255));
+  square(random(800), random(700), random(800));
 }
 
 void pictureFrame() {
@@ -372,15 +392,53 @@ class Album {
   } 
 } 
 
+
 void keyPressed() {
-  if (keyCode == UP) { y = y - speed; }
-  if (keyCode == DOWN) { y = y + speed; } 
-  if (keyCode == LEFT) { x = x - speed; }
-  if (keyCode == RIGHT) { x = x + speed; } 
+  if(!musicPlaying) {
+    println("MUSIC NOT PLAYING");
+    if (keyCode == UP) { characterY = characterY - speed; }
+    if (keyCode == DOWN) { characterY = characterY + speed; } 
+    if (keyCode == LEFT) { characterX = characterX - speed; }
+    if (keyCode == RIGHT) { characterX = characterX + speed; } 
+  } else {
+     println("MUSIC PLAYING");
+    }
 }
 
+// https://www.processing.org/examples/mousefunctions.html
+void mouseTest() {
+// Test if the cursor is over the box 
+  if (mouseX > characterX-characterSize && mouseX < characterX+characterSize && 
+      mouseY > characterY-characterSize && mouseY < characterY+characterSize) {
+    overBox = true;  
+  } else {
+    overBox = false;
+  }
+}
 
-class BeatListener implements AudioListener
+void mousePressed() {
+  if(overBox) { 
+    locked = true; 
+  } else {
+    locked = false;
+  }
+  xOffset = mouseX-characterX; 
+  yOffset = mouseY-characterY; 
+
+}
+
+void mouseDragged() {
+  if(locked) {
+    characterX = mouseX-xOffset; 
+    characterY = mouseY-yOffset; 
+  }
+}
+
+void mouseReleased() {
+  locked = false;
+}
+
+class BeatListener implements AudioListener // http://code.compartmental.net/minim/beatdetect_method_iskick.html 
 {
   private BeatDetect beat;
   private AudioPlayer source;
