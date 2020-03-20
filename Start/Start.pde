@@ -27,20 +27,30 @@ BeatDetect beatLinkinPark;
 BeatDetect beatU2;
 BeatListener bl;
 
+// Character + Character movement
 float characterX;
 float characterY;
-int characterSize = 75;
-boolean overBox = false;
-boolean locked = false;
 float xOffset = 0.0; 
 float yOffset = 0.0; 
-color white = #FFFFFF;
-
-int speed = 10;
 float easing = 0.05;
+boolean overCharacter = false;
+boolean locked = false;
+int characterSize = 75;
+int speed = 10;
+
+
+// Keys
+char leftKey = 37;
+char upKey = 38;
+char rightKey = 39;
+char downKey = 40;
+
+// Bottom text
 String instructionsBase = "Move the cursor inside an album with the ARROW keys / drag & drop";
 String instructions = instructionsBase;
+color white = #FFFFFF;
 
+// Load album cover images + create a boxes/placeholders
 Album album01 = new Album(20,20); 
 PImage FreskuCover;
 
@@ -71,7 +81,7 @@ PImage U2Cover;
 void setup() {
   size(800, 900);
   
-  // Covers 
+  // Load album covers
   FreskuCover = loadImage("Fresku-cover.jpg");
   MacMillerCover = loadImage("MacMiller-cover.jpg");
   MaanCover = loadImage("Maan-cover.jpg");
@@ -82,56 +92,53 @@ void setup() {
   LinkinParkCover = loadImage("LinkinPark-cover.jpg");
   U2Cover = loadImage("U2-cover.jpg");
   
-  // Songs
+  // Set minin - beat plugin
   minim = new Minim(this);
-  
   frameRate(30);
   smooth();
   
+  // Load songs + create beatlistener for detection
   Fresku = minim.loadFile("Fresku-song.mp3", 2048);
-  beatFresku = new BeatDetect(Fresku.bufferSize(), Fresku.sampleRate());//The internal buffer size of this sound object//
+  beatFresku = new BeatDetect(Fresku.bufferSize(), Fresku.sampleRate());
   bl = new BeatListener(beatFresku, Fresku);  
   
   MacMiller = minim.loadFile("MacMiller-song.mp3", 2048);
-  beatMacMiller = new BeatDetect(MacMiller.bufferSize(), MacMiller.sampleRate());//The internal buffer size of this sound object//
+  beatMacMiller = new BeatDetect(MacMiller.bufferSize(), MacMiller.sampleRate());
   bl = new BeatListener(beatMacMiller, MacMiller);  
   
   Maan = minim.loadFile("Maan-song.mp3", 2048);
-  beatMaan = new BeatDetect(Maan.bufferSize(), Maan.sampleRate());//The internal buffer size of this sound object//
+  beatMaan = new BeatDetect(Maan.bufferSize(), Maan.sampleRate());
   bl = new BeatListener(beatMaan, Maan);  
   
   AmberRun = minim.loadFile("AmberRun-song.mp3", 2048);
-  beatAmberRun = new BeatDetect(AmberRun.bufferSize(), AmberRun.sampleRate());//The internal buffer size of this sound object//
+  beatAmberRun = new BeatDetect(AmberRun.bufferSize(), AmberRun.sampleRate());
   bl = new BeatListener(beatAmberRun, AmberRun);  
   
   Fisher = minim.loadFile("Fisher-song.mp3", 2048);
-  beatFisher = new BeatDetect(Fisher.bufferSize(), Fisher.sampleRate());//The internal buffer size of this sound object//
+  beatFisher = new BeatDetect(Fisher.bufferSize(), Fisher.sampleRate());
   bl = new BeatListener(beatFisher, Fisher);
    
   NWA = minim.loadFile("NWA-song.mp3", 2048);
-  beatNWA = new BeatDetect(NWA.bufferSize(), NWA.sampleRate());//The internal buffer size of this sound object//
+  beatNWA = new BeatDetect(NWA.bufferSize(), NWA.sampleRate());
   bl = new BeatListener(beatNWA, NWA);
   
   BMTH = minim.loadFile("BMTH-song.mp3", 2048);
-  beatBMTH = new BeatDetect(BMTH.bufferSize(), BMTH.sampleRate());//The internal buffer size of this sound object//
+  beatBMTH = new BeatDetect(BMTH.bufferSize(), BMTH.sampleRate());
   bl = new BeatListener(beatBMTH, BMTH);
   
   LinkinPark = minim.loadFile("LinkinPark-song.mp3", 2048);
-  beatLinkinPark = new BeatDetect(LinkinPark.bufferSize(), LinkinPark.sampleRate());//The internal buffer size of this sound object//
+  beatLinkinPark = new BeatDetect(LinkinPark.bufferSize(), LinkinPark.sampleRate());
   bl = new BeatListener(beatLinkinPark, LinkinPark);
   
   U2 = minim.loadFile("U2-song.mp3", 2048);
-  beatU2 = new BeatDetect(U2.bufferSize(), U2.sampleRate());//The internal buffer size of this sound object//
+  beatU2 = new BeatDetect(U2.bufferSize(), U2.sampleRate());
   bl = new BeatListener(beatU2, U2);
- 
-  
 }
 
 void draw() {
   background(255);
   
-  mouseTest();
-  
+  // Create album placeholders + put covers in place
   album01.create();
   image(FreskuCover,20,20);
   
@@ -159,9 +166,12 @@ void draw() {
   album09.create();
   image(U2Cover,580,500);
   
+  // base functions
+  mouseMovement();
   character();
   bottomBar();
           
+  // Hover/location checks + functions to play music & shapes        
     if(characterX >= 20 && characterX <= 145) {
       if(characterY >= 20 && characterY <= 145) {
           instructions = "Press ENTER to visualise In Het Diepe";
@@ -169,10 +179,7 @@ void draw() {
             Fresku.play();         
             background(255);
             
-            if (beatFresku.isKick() == true){
-              randomDots();
-              randomTriangles();
-            }
+            if (beatFresku.isKick() == true){ randomTriangles(); }
             
             pictureFrame();
             instructions = "Now playing: Fresku - In Het Diepe";
@@ -187,9 +194,7 @@ void draw() {
             AmberRun.play();
             background(255);
             
-            for (int i = 0; i < AmberRun.bufferSize() - 1; i++) {
-                randomLines();
-            }
+            for (int i = 0; i < AmberRun.bufferSize() - 1; i++) { randomLines(); }
             
             pictureFrame();
             instructions = "Now playing: Amber Run - Heaven";
@@ -203,9 +208,7 @@ void draw() {
             BMTH.play();            
             background(255);
             
-            if (beatBMTH.isKick() == true){
-              randomCircles();
-            }
+            if (beatBMTH.isKick() == true){ randomRectangles(); }
            
             pictureFrame();
             instructions = "Now playing: Bring Me The Horizon - Happy Song";
@@ -220,9 +223,8 @@ void draw() {
           if (keyCode == ENTER) {
               MacMiller.play();
               background(255);
-              if (beatMacMiller.isKick() == true){
-                randomCircles();
-              }
+              
+              if (beatMacMiller.isKick() == true){ randomCircles();}
              
               pictureFrame();
               instructions = "Now playing: Mac Miller - Woods";
@@ -236,9 +238,9 @@ void draw() {
               Fisher.play();
               background(255);
               
-              if (beatFisher.isKick() == true){
-                randomRectangles();
-              }
+              if (beatFisher.isKick() == true){ randomRectangles(); }
+              if (beatFisher.isHat() == true){ randomCircles(); }
+              if (beatFisher.isSnare() == true){ randomTriangles(); }
              
              
               pictureFrame();
@@ -253,9 +255,7 @@ void draw() {
             LinkinPark.play();
             background(255);
             
-            if (beatLinkinPark.isKick() == true){
-              randomCircles();
-            }
+            if (beatLinkinPark.isKick() == true){ randomSquares(); }
             
             pictureFrame();
             instructions = "Now playing: Linkin Park - One More Light";
@@ -271,12 +271,12 @@ void draw() {
             Maan.play();
             background(255);
             
-            if (beatMaan.isKick() == true){
-              randomRectangles();
-            }
+            if (beatMaan.isKick() == true){ randomRectangles(); }
+            if (beatMaan.isHat() == true){ randomDots(); }
            
             pictureFrame();
             instructions = "Now playing: Maan - Onverstaanbaar";
+            if (beatU2.isHat() == true){ randomDots(); }
             bottomBar();
           } 
       }
@@ -287,13 +287,8 @@ void draw() {
             NWA.play();
             background(255);
               
-            if (beatNWA.isKick() == true){
-              randomRectangles();
-            }
-            
-            if (beatNWA.isHat() == true){
-              randomLines();
-            }
+            if (beatNWA.isKick() == true){ randomCircles(); }
+            if (beatNWA.isHat() == true){ randomTriangles(); }
             
             pictureFrame();
             instructions = "Now playing: NWA - Straight Outta Compton";
@@ -307,9 +302,8 @@ void draw() {
             U2.play();
             background(255);
             
-            if (beatU2.isKick() == true){
-              randomRectangles();
-            }
+            if (beatU2.isKick() == true){ randomSquares(); }
+            if (beatU2.isHat() == true){ randomDots(); }
            
             pictureFrame();
             instructions = "Now playing: U2 - No Line On The Horizon";
@@ -339,7 +333,6 @@ void character() {
 void randomCircles() {
   fill(random(255), random(255), random(255));
   ellipse(random(800), random(700), random(800), random(700));
-  pictureFrame();
 } 
 
 void randomLines() {
@@ -395,10 +388,10 @@ class Album {
 
 
 void keyPressed() {
-  if (keyCode == 37) { characterX = characterX - speed; } // LEFT
-  if (keyCode == 38) { characterY = characterY - speed; } // UP
-  if (keyCode == 39) { characterX = characterX + speed; } // RIGHT
-  if (keyCode == 40) { characterY = characterY + speed; } // DOWN
+  if (keyCode == leftKey) { characterX = characterX - speed; }
+  if (keyCode == upKey) { characterY = characterY - speed; } 
+  if (keyCode == rightKey) { characterX = characterX + speed; } 
+  if (keyCode == downKey) { characterY = characterY + speed; } 
   
     Fresku.pause();
     Maan.pause();
@@ -412,22 +405,18 @@ void keyPressed() {
 }
 
 // https://www.processing.org/examples/mousefunctions.html
-void mouseTest() {
-// Test if the cursor is over the box 
+void mouseMovement() {
   if (mouseX > characterX-characterSize && mouseX < characterX+characterSize && 
       mouseY > characterY-characterSize && mouseY < characterY+characterSize) {
-    overBox = true;  
-  } else {
-    overBox = false;
-  }
+    overCharacter = true;  
+  } else { overCharacter = false; }
 }
 
 void mousePressed() {
-  if(overBox) { 
+  if(overCharacter) { 
     locked = true; 
-  } else {
-    locked = false;
-  }
+  } else { locked = false; }
+  
   xOffset = mouseX-characterX; 
   yOffset = mouseY-characterY; 
 
@@ -440,29 +429,19 @@ void mouseDragged() {
   }
 }
 
-void mouseReleased() {
-  locked = false;
-}
+void mouseReleased() { locked = false; }
 
-class BeatListener implements AudioListener // http://code.compartmental.net/minim/beatdetect_method_iskick.html 
-{
+// http://code.compartmental.net/minim/beatdetect_method_iskick.html
+class BeatListener implements AudioListener {
   private BeatDetect beat;
   private AudioPlayer source;
 
-  BeatListener(BeatDetect beat, AudioPlayer source)
-  {
+  BeatListener(BeatDetect beat, AudioPlayer source) {
     this.source = source;
     this.source.addListener(this);
     this.beat = beat;
   }
 
-  void samples(float[] samps)
-  {
-    beat.detect(source.mix);
-  }
-
-  void samples(float[] sampsL, float[] sampsR)
-  {
-    beat.detect(source.mix);
-  }
+  void samples(float[] samps) { beat.detect(source.mix); }
+  void samples(float[] sampsL, float[] sampsR) { beat.detect(source.mix);}
 }
